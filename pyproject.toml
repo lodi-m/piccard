@@ -27,5 +27,5 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/lodi-m/piccard"
-"Documentation" = "https://github.com/lodi-m/piccard/blob/main/docs/documentation.html"
+"Documentation" = "https://htmlpreview.github.io/?https://github.com/lodi-m/piccard/blob/main/docs/documentation.html"
 "Research Paper" = "https://www.researchgate.net/publication/326137658_Visualizing_demographic_evolution_using_geographically_inconsistent_census_data"
