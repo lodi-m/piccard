@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Maliha Lodi">
+
+<title>piccard</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="documentation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="documentation_files/libs/quarto-html/quarto.js"></script>
+<script src="documentation_files/libs/quarto-html/popper.min.js"></script>
+<script src="documentation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="documentation_files/libs/quarto-html/anchor.min.js"></script>
+<link href="documentation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="documentation_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="documentation_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="documentation_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="documentation_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">piccard</h1>
+<p class="subtitle lead">Current Version:&nbsp;0.0.1</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Maliha Lodi </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p><strong>piccard</strong> is a Python package which provides an alternative framework to traditional harmonization techniques for combining spatial data with inconsistent geographic units across multiple years. It uses a network representation containing nodes and edges to retain all information available in the data. Nodes are used to represent all the geographic areas (e.g., census tracts, dissemination areas) for each year. An edge connects two nodes when the geographic area corresponding to the tail node has at least a 5% area overlap with the geographic area corresponding to the head node in the previous available year.</p>
+<p>The method behind this package can be found in the following research paper <a href="https://doi.org/10.31235/osf.io/a3gtd">(link)</a><br>
+Dias, F., &amp; Silver, D. (2018). Visualizing demographic evolution using geographically inconsistent census data. California Digital Library (CDL). https://doi.org/10.31235/osf.io/a3gtd</p>
+<section id="setup" class="level3">
+<h3 class="anchored" data-anchor-id="setup">Setup</h3>
+<hr>
+<div class="cell" data-tags="[]" data-execution_count="128">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geopandas <span class="im">as</span> gpd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">'ignore'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-tags="[]">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ct_2006 <span class="op">=</span> gpd.read_file(<span class="st">"data/gct_000b06a_e/gct_000b06a_e.shp"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ct_2011 <span class="op">=</span> gpd.read_file(<span class="st">"data/gct_000b11a_e/gct_000b11a_e.shp"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ct_2016 <span class="op">=</span> gpd.read_file(<span class="st">"data/lct_000b16a_e/lct_000b16a_e.shp"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ct_2021 <span class="op">=</span> gpd.read_file(<span class="st">"data/lct_000b21a_e/lct_000b21a_e.shp"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="useful-functions" class="level3">
+<h3 class="anchored" data-anchor-id="useful-functions">Useful Functions</h3>
+<hr>
+<section id="piccard.preprocessing" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.preprocessing">piccard.preprocessing</h4>
+<strong>piccard.preprocessing(ct_data, year, id)</strong><br>
+Return a cleaned GeoDataFrame of the input data with a new column showing the area of each census tract.<br>
+
+<hr>
+<p><strong>Parameters:</strong><br>
+ct_data : <em>GeoDataFrame</em><br>
+year : <em>string</em><br>
+id : <em>string</em></p>
+<strong>Notes:</strong><br>
+- Input data is assumed to have been passed through <code>gpd.read_file()</code> beforehand<br>
+
+<hr>
+<div class="cell" data-tags="[]" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> preprocessing(ct_data, year, <span class="bu">id</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    process_data <span class="op">=</span> ct_data.copy()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Suppressing CRS warning associated with .buffer() </span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> warnings.catch_warnings():</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">UserWarning</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        process_data[<span class="st">'geometry'</span>] <span class="op">=</span> (process_data.to_crs(<span class="st">'EPSG:4246'</span>).geometry</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                                    .<span class="bu">buffer</span>(<span class="op">-</span><span class="fl">0.000001</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        process_data[<span class="st">'area'</span> <span class="op">+</span> <span class="st">'_'</span> <span class="op">+</span> year] <span class="op">=</span> process_data.area</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    process_data[<span class="bu">id</span>] <span class="op">=</span> year <span class="op">+</span> <span class="st">'_'</span> <span class="op">+</span> process_data[<span class="bu">id</span>]</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> process_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="example" class="level4">
+<h4 class="anchored" data-anchor-id="example">Example</h4>
+<div class="cell" data-tags="[]" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ct_2006 <span class="op">=</span> gpd.read_file(<span class="st">"data/gct_000b06a_e/gct_000b06a_e.shp"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>clean_data <span class="op">=</span> pc.preprocessing(ct_2006, <span class="st">'2006'</span>, <span class="st">'CTUID'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ct_2006.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CTUID</th>
+<th data-quarto-table-cell-role="th">CMAUID</th>
+<th data-quarto-table-cell-role="th">PRUID</th>
+<th data-quarto-table-cell-role="th">geometry</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0010001.00</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.68954 47.53004, -52.68960 47.529...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0010002.00</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.71822 47.54844, -52.71799 47.548...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>0010003.01</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.74120 47.52964, -52.74126 47.529...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0010003.02</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.74526 47.52948, -52.74627 47.529...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>0010004.00</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.74217 47.56288, -52.74140 47.561...</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>clean_data.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CTUID</th>
+<th data-quarto-table-cell-role="th">CMAUID</th>
+<th data-quarto-table-cell-role="th">PRUID</th>
+<th data-quarto-table-cell-role="th">geometry</th>
+<th data-quarto-table-cell-role="th">area_2006</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2006_0010001.00</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.68954 47.53004, -52.68961 47.529...</td>
+<td>0.001230</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2006_0010002.00</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.71822 47.54843, -52.71799 47.548...</td>
+<td>0.000234</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2006_0010003.01</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.74120 47.52965, -52.74126 47.529...</td>
+<td>0.000194</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2006_0010003.02</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.74527 47.52948, -52.74627 47.529...</td>
+<td>0.000232</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2006_0010004.00</td>
+<td>001</td>
+<td>10</td>
+<td>POLYGON ((-52.74217 47.56288, -52.74141 47.561...</td>
+<td>0.001105</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="piccard.create_network" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.create_network">piccard.create_network</h4>
+<strong>piccard.create_network(census_dfs, years, id, threshold=0.05)</strong><br>
+Creates a network representation of the temporal connections present in <em>census_dfs</em> over <em>years</em> when each yearly geographic area has at most <em>threshold</em> percentage of overlap with its corresponding area(s) in the next year.
+<hr>
+<strong>Parameters:</strong><br>
+census_dfs : <em>List[GeoDataFrame]</em><br>
+years: <em>List[string]</em><br>
+id: <em>string</em><br>
+threshold: <em>float</em>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_network(census_dfs, years, <span class="bu">id</span>, threshold<span class="op">=</span><span class="fl">0.05</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    preprocessed_dfs <span class="op">=</span> [preprocessing(census_dfs[i], years[i], <span class="bu">id</span>) </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    contained_cts <span class="op">=</span> ct_containment(preprocessed_dfs, years) </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> get_nodes(contained_cts, <span class="bu">id</span>, threshold)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    attributes <span class="op">=</span> get_attributes(nodes, census_dfs, years, <span class="bu">id</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    G <span class="op">=</span> nx.from_pandas_edgelist(nodes, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2'</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    nx.set_node_attributes(G, attributes.set_index(<span class="bu">id</span>).to_dict(<span class="st">'index'</span>))</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> G</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="example-1" class="level4">
+<h4 class="anchored" data-anchor-id="example-1">Example</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> pc.create_network(census_dfs, years, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(G.nodes(data<span class="op">=</span><span class="va">True</span>))[:<span class="dv">2</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>[('2011_0010001.00',
+  {'CTNAME': '0001.00',
+   'CMAUID': '001',
+   'CMANAME': "St. John's",
+   'CMATYPE': 'B',
+   'CMAPUID': '10001',
+   'PRUID': '10',
+   'PRNAME': 'Newfoundland and Labrador / Terre-Neuve-et-Labrador',
+   'DGUID': nan,
+   'LANDAREA': nan,
+   'network_level': 1}),
+ ('2016_0010001.00',
+  {'CTNAME': '0001.00',
+   'CMAUID': '001',
+   'CMANAME': "St. John's",
+   'CMATYPE': 'B',
+   'CMAPUID': '10001',
+   'PRUID': '10',
+   'PRNAME': 'Newfoundland and Labrador / Terre-Neuve-et-Labrador',
+   'DGUID': nan,
+   'LANDAREA': nan,
+   'network_level': 2})]</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(G.edges(data<span class="op">=</span><span class="va">True</span>))[:<span class="dv">2</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>[('2011_0010001.00', '2016_0010001.00', {}),
+ ('2016_0010001.00', '2021_0010001.00', {})]</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="piccard.create_network_table" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.create_network_table">piccard.create_network_table</h4>
+<strong>piccard.create_network_table(census_dfs, years, id, threshold=0.05)</strong><br>
+Return the final network table with all the temporal connections present in <em>census_dfs</em> over <em>years</em> when each yearly geographic area has at most <em>threshold</em> percentage of overlap with its corresponding area(s) in the next year.
+<hr>
+<p><strong>Parameters:</strong><br>
+census_dfs : <em>List[DataFrame]</em><br>
+years: <em>List[string]</em><br>
+id: <em>string</em><br>
+threshold: <em>float</em></p>
+<strong>Notes:</strong><br>
+- The resulting table contains the same information as the network created in <code>piccard.create_network()</code>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_network_table(census_dfs, years, <span class="bu">id</span>, threshold<span class="op">=</span><span class="fl">0.05</span>): </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    num_joins <span class="op">=</span> math.ceil(num_years<span class="op">/</span><span class="dv">2</span>) </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    final_cols <span class="op">=</span> [<span class="st">'ct_'</span> <span class="op">+</span> col_name <span class="cf">for</span> col_name <span class="kw">in</span> years]</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    drop_cols <span class="op">=</span> final_cols[<span class="dv">1</span>:]</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    preprocessed_dfs <span class="op">=</span> [preprocessing(census_dfs[i], years[i], <span class="bu">id</span>) </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    contained_cts <span class="op">=</span> ct_containment(preprocessed_dfs, years) </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> get_nodes(contained_cts, <span class="bu">id</span>, threshold)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">#all_paths returns a three item tuple</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    all_paths <span class="op">=</span> find_all_paths(nodes, num_joins, <span class="bu">id</span>)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    all_paths_df <span class="op">=</span> all_paths[<span class="dv">0</span>]</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    left_cols <span class="op">=</span> all_paths[<span class="dv">1</span>]</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    right_cols <span class="op">=</span> all_paths[<span class="dv">2</span>]</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Dividing all network paths into full paths and partial paths </span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    na_df <span class="op">=</span> all_paths_df[all_paths_df.isnull().<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)] </span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    no_na_df <span class="op">=</span> all_paths_df[<span class="op">~</span>all_paths_df.isnull().<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>)] </span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    full_paths <span class="op">=</span> find_full_paths(no_na_df, final_cols)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    full_paths_list <span class="op">=</span> full_paths.to_numpy().flatten()</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    partial_paths <span class="op">=</span> find_partial_paths(na_df, years, left_cols, final_cols, full_paths_list)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> pd.concat([full_paths, partial_paths])</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> network_table[final_cols]</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> network_table.T.drop_duplicates().T </span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> network_table.drop_duplicates(subset<span class="op">=</span>drop_cols, keep<span class="op">=</span><span class="st">'last'</span>)</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    network_table.sort_values(by<span class="op">=</span>final_cols[<span class="dv">0</span>], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    attributes <span class="op">=</span> get_attributes(nodes, census_dfs, years, <span class="bu">id</span>)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    final_table <span class="op">=</span> attach_attributes(network_table, attributes, years, final_cols, <span class="bu">id</span>)</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Formatting final table columns</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(final_cols)):</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>        col <span class="op">=</span> <span class="bu">str</span>(final_cols[i])</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>        popped <span class="op">=</span> final_table.pop(col) </span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>        final_table.insert(i, popped.name, popped)</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>    final_table.columns<span class="op">=</span> final_table.columns.<span class="bu">str</span>.lower()</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> final_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="example-2" class="level3">
+<h3 class="anchored" data-anchor-id="example-2">Example</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>network_table <span class="op">=</span> pc.create_network_table(census_dfs, years, <span class="st">'CTUID'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>network_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ct_2011</th>
+<th data-quarto-table-cell-role="th">ct_2016</th>
+<th data-quarto-table-cell-role="th">ct_2021</th>
+<th data-quarto-table-cell-role="th">ctname_2011</th>
+<th data-quarto-table-cell-role="th">cmauid_2011</th>
+<th data-quarto-table-cell-role="th">cmaname_2011</th>
+<th data-quarto-table-cell-role="th">cmatype_2011</th>
+<th data-quarto-table-cell-role="th">cmapuid_2011</th>
+<th data-quarto-table-cell-role="th">pruid_2011</th>
+<th data-quarto-table-cell-role="th">prname_2011</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">cmatype_2016</th>
+<th data-quarto-table-cell-role="th">cmapuid_2016</th>
+<th data-quarto-table-cell-role="th">pruid_2016</th>
+<th data-quarto-table-cell-role="th">prname_2016</th>
+<th data-quarto-table-cell-role="th">network_level_2016</th>
+<th data-quarto-table-cell-role="th">ctname_2021</th>
+<th data-quarto-table-cell-role="th">pruid_2021</th>
+<th data-quarto-table-cell-role="th">dguid_2021</th>
+<th data-quarto-table-cell-role="th">landarea_2021</th>
+<th data-quarto-table-cell-role="th">network_level_2021</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>NaN</td>
+<td>3050120.00</td>
+<td>3050120.00</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>B</td>
+<td>13305</td>
+<td>13</td>
+<td>New Brunswick / Nouveau-Brunswick</td>
+<td>2</td>
+<td>0120.00</td>
+<td>13</td>
+<td>2021S05073050120.00</td>
+<td>149.1445</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>NaN</td>
+<td>3100140.00</td>
+<td>3100140.00</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>B</td>
+<td>13310</td>
+<td>13</td>
+<td>New Brunswick / Nouveau-Brunswick</td>
+<td>2</td>
+<td>0140.00</td>
+<td>13</td>
+<td>2021S05073100140.00</td>
+<td>144.7702</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>NaN</td>
+<td>3200028.00</td>
+<td>3200028.00</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>K</td>
+<td>13320</td>
+<td>13</td>
+<td>New Brunswick / Nouveau-Brunswick</td>
+<td>2</td>
+<td>0028.00</td>
+<td>13</td>
+<td>2021S05073200028.00</td>
+<td>29.4354</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>NaN</td>
+<td>3200029.00</td>
+<td>3200029.00</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>K</td>
+<td>13320</td>
+<td>13</td>
+<td>New Brunswick / Nouveau-Brunswick</td>
+<td>2</td>
+<td>0029.00</td>
+<td>13</td>
+<td>2021S05073200029.00</td>
+<td>527.2040</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>NaN</td>
+<td>3200030.00</td>
+<td>3200030.00</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>K</td>
+<td>13320</td>
+<td>13</td>
+<td>New Brunswick / Nouveau-Brunswick</td>
+<td>2</td>
+<td>0030.00</td>
+<td>13</td>
+<td>2021S05073200030.00</td>
+<td>294.3542</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6339</td>
+<td>9700100.00</td>
+<td>9700100.00</td>
+<td>9700100.00</td>
+<td>0100.00</td>
+<td>970</td>
+<td>Prince George</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>...</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>2</td>
+<td>0100.00</td>
+<td>59</td>
+<td>2021S05079700100.00</td>
+<td>12487.2890</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6340</td>
+<td>9700101.00</td>
+<td>9700101.00</td>
+<td>9700101.00</td>
+<td>0101.00</td>
+<td>970</td>
+<td>Prince George</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>...</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>2</td>
+<td>0101.00</td>
+<td>59</td>
+<td>2021S05079700101.00</td>
+<td>667.6134</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6341</td>
+<td>9700102.00</td>
+<td>9700102.00</td>
+<td>9700102.00</td>
+<td>0102.00</td>
+<td>970</td>
+<td>Prince George</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>...</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>2</td>
+<td>0102.00</td>
+<td>59</td>
+<td>2021S05079700102.00</td>
+<td>2802.3279</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6342</td>
+<td>9700103.00</td>
+<td>9700103.01</td>
+<td>9700103.01</td>
+<td>0103.00</td>
+<td>970</td>
+<td>Prince George</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>...</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>2</td>
+<td>0103.01</td>
+<td>59</td>
+<td>2021S05079700103.01</td>
+<td>5.2340</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6343</td>
+<td>9700103.00</td>
+<td>9700103.02</td>
+<td>9700103.02</td>
+<td>0103.00</td>
+<td>970</td>
+<td>Prince George</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>...</td>
+<td>K</td>
+<td>59970</td>
+<td>59</td>
+<td>British Columbia / Colombie-Britannique</td>
+<td>2</td>
+<td>0103.02</td>
+<td>59</td>
+<td>2021S05079700103.02</td>
+<td>1371.7853</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+
+<p>6344 rows × 24 columns</p>
+</div>
+</div>
+</div>
+<hr>
+<section id="piccard.draw_subnetwork" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.draw_subnetwork">piccard.draw_subnetwork</h4>
+<strong>piccard.draw_subnetwork(network_table, G, sample_pct=0.005)</strong><br>
+Draws a subgraph of the network representation, using a sample_pct% path sample from the network table.
+<hr>
+<p><strong>Parameters:</strong><br>
+network_table : <em>DataFrame</em><br>
+G: <em>NetworkX Graph</em><br>
+sample_pct: <em>float</em></p>
+<strong>Notes:</strong><br>
+- The network_table is required to be generated first before using this function.
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> draw_subnetwork(network_table, G, sample_pct<span class="op">=</span><span class="fl">0.005</span>):</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Getting sample from network_table</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> re.<span class="bu">compile</span>(<span class="st">'ct_[0-9]+'</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    table_cols <span class="op">=</span> <span class="bu">list</span>(network_table.columns)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    sample_cols <span class="op">=</span> <span class="bu">list</span>(<span class="bu">filter</span>(r.match, table_cols))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> network_table[sample_cols]</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    sample_table <span class="op">=</span> network_table.sample(frac<span class="op">=</span>sample_pct)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Adding corresponding year prefix to all nodes </span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sample_cols)):</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>        curr_col <span class="op">=</span> sample_cols[i]</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        sample_table[curr_col] <span class="op">=</span> sample_cols[i][<span class="dv">3</span>:] <span class="op">+</span> <span class="st">'_'</span> <span class="op">+</span> sample_table[curr_col]</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    sample_nodes <span class="op">=</span> sample_table.stack().droplevel(<span class="dv">1</span>).sort_values()</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    subgraph <span class="op">=</span> G.subgraph(sample_nodes)        </span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">30</span>))    </span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    pos <span class="op">=</span> nx.multipartite_layout(subgraph, subset_key<span class="op">=</span><span class="st">'network_level'</span>)    </span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    nx.draw(subgraph, pos, with_labels<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="example-3" class="level3">
+<h3 class="anchored" data-anchor-id="example-3">Example</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>network_table <span class="op">=</span> pc.create_network_table(census_dfs, years, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> pc.create_network(census_dfs, years, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pc.draw_subnetwork(network_table, G)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="documentation_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<hr>
+</section>
+<section id="background-functions" class="level3">
+<h3 class="anchored" data-anchor-id="background-functions">Background Functions</h3>
+<hr>
+<section id="piccard.ct_containment" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.ct_containment">piccard.ct_containment</h4>
+<strong>piccard.preprocessing(preprocessed_dfs, years)</strong><br>
+Return a List of GeoDataFrames with census tracts that are geographically contained within census tracts from the following census year. Every ith list element (ith GeoDataFrame) includes the ith year census tracts that are contained within the i+1th year census tracts.
+<hr>
+<p><strong>Parameters:</strong><br>
+preprocessed_dfs : <em>List[GeoDataFrame]</em><br>
+years : <em>List[string]</em></p>
+<strong>Notes:</strong><br>
+- The order of elements in both lists in terms of the census year correspond to one other.<br>
+- Input data is preprocessed before calling this function.<br>
+
+<hr>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ct_containment(preprocessed_dfs, years):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    contained_tracts <span class="op">=</span> []</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_years<span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Getting CTs which are contained within a previous year's CT</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        contained_df <span class="op">=</span> gpd.overlay(preprocessed_dfs[i], preprocessed_dfs[i<span class="op">+</span><span class="dv">1</span>],</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                                   how<span class="op">=</span><span class="st">'intersection'</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> warnings.catch_warnings():</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>            warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">UserWarning</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            contained_df[<span class="st">'area_intersection'</span>] <span class="op">=</span> contained_df.area</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Calculating the percentage of the overlapping area between the 2 years</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>            pct_col <span class="op">=</span> <span class="st">'pct_'</span> <span class="op">+</span> years[i<span class="op">+</span><span class="dv">1</span>] <span class="op">+</span> <span class="st">'_of_'</span> <span class="op">+</span> years[i]</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            contained_df[pct_col] <span class="op">=</span> (contained_df[<span class="st">'area_intersection'</span>] <span class="op">/</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>                                     contained_df[[<span class="st">'area_'</span><span class="op">+</span>years[i],</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>                                                   <span class="st">'area_'</span><span class="op">+</span>years[i<span class="op">+</span><span class="dv">1</span>]]].<span class="bu">min</span>(axis<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        contained_tracts.append(contained_df)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> contained_tracts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="example-4" class="level4">
+<h4 class="anchored" data-anchor-id="example-4">Example</h4>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>ct_2011 <span class="op">=</span> gpd.read_file(<span class="st">"data/gct_000b11a_e/gct_000b11a_e.shp"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>ct_2016 <span class="op">=</span> gpd.read_file(<span class="st">"data/lct_000b16a_e/lct_000b16a_e.shp"</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>ct_2021 <span class="op">=</span> gpd.read_file(<span class="st">"data/lct_000b21a_e/lct_000b21a_e.shp"</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>contained[<span class="dv">0</span>].head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="41">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CTUID_1</th>
+<th data-quarto-table-cell-role="th">CTNAME_1</th>
+<th data-quarto-table-cell-role="th">CMAUID_1</th>
+<th data-quarto-table-cell-role="th">CMANAME_1</th>
+<th data-quarto-table-cell-role="th">CMATYPE_1</th>
+<th data-quarto-table-cell-role="th">CMAPUID_1</th>
+<th data-quarto-table-cell-role="th">PRUID_1</th>
+<th data-quarto-table-cell-role="th">PRNAME_1</th>
+<th data-quarto-table-cell-role="th">area_2011</th>
+<th data-quarto-table-cell-role="th">CTUID_2</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">PRUID_2</th>
+<th data-quarto-table-cell-role="th">PRNAME_2</th>
+<th data-quarto-table-cell-role="th">CMAUID_2</th>
+<th data-quarto-table-cell-role="th">CMAPUID_2</th>
+<th data-quarto-table-cell-role="th">CMANAME_2</th>
+<th data-quarto-table-cell-role="th">CMATYPE_2</th>
+<th data-quarto-table-cell-role="th">area_2016</th>
+<th data-quarto-table-cell-role="th">geometry</th>
+<th data-quarto-table-cell-role="th">area_intersection</th>
+<th data-quarto-table-cell-role="th">pct_2016_of_2011</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2011_5550021.00</td>
+<td>0021.00</td>
+<td>555</td>
+<td>London</td>
+<td>B</td>
+<td>35555</td>
+<td>35</td>
+<td>Ontario</td>
+<td>0.000237</td>
+<td>2016_5550043.00</td>
+<td>...</td>
+<td>35</td>
+<td>Ontario</td>
+<td>555</td>
+<td>35555</td>
+<td>London</td>
+<td>B</td>
+<td>0.000202</td>
+<td>POLYGON ((-81.26066 42.99321, -81.26110 42.993...</td>
+<td>3.981324e-09</td>
+<td>0.000020</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2011_5550034.00</td>
+<td>0034.00</td>
+<td>555</td>
+<td>London</td>
+<td>B</td>
+<td>35555</td>
+<td>35</td>
+<td>Ontario</td>
+<td>0.000148</td>
+<td>2016_5550043.00</td>
+<td>...</td>
+<td>35</td>
+<td>Ontario</td>
+<td>555</td>
+<td>35555</td>
+<td>London</td>
+<td>B</td>
+<td>0.000202</td>
+<td>MULTIPOLYGON (((-81.25322 42.99553, -81.25102 ...</td>
+<td>1.105083e-07</td>
+<td>0.000748</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2011_5550043.00</td>
+<td>0043.00</td>
+<td>555</td>
+<td>London</td>
+<td>B</td>
+<td>35555</td>
+<td>35</td>
+<td>Ontario</td>
+<td>0.000201</td>
+<td>2016_5550043.00</td>
+<td>...</td>
+<td>35</td>
+<td>Ontario</td>
+<td>555</td>
+<td>35555</td>
+<td>London</td>
+<td>B</td>
+<td>0.000202</td>
+<td>POLYGON ((-81.24889 42.99678, -81.24963 42.996...</td>
+<td>2.013663e-04</td>
+<td>0.999699</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2011_5550042.00</td>
+<td>0042.00</td>
+<td>555</td>
+<td>London</td>
+<td>B</td>
+<td>35555</td>
+<td>35</td>
+<td>Ontario</td>
+<td>0.000148</td>
+<td>2016_5550043.00</td>
+<td>...</td>
+<td>35</td>
+<td>Ontario</td>
+<td>555</td>
+<td>35555</td>
+<td>London</td>
+<td>B</td>
+<td>0.000202</td>
+<td>MULTIPOLYGON (((-81.24929 42.99897, -81.24965 ...</td>
+<td>2.051036e-08</td>
+<td>0.000138</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2011_5550045.00</td>
+<td>0045.00</td>
+<td>555</td>
+<td>London</td>
+<td>B</td>
+<td>35555</td>
+<td>35</td>
+<td>Ontario</td>
+<td>0.000200</td>
+<td>2016_5550043.00</td>
+<td>...</td>
+<td>35</td>
+<td>Ontario</td>
+<td>555</td>
+<td>35555</td>
+<td>London</td>
+<td>B</td>
+<td>0.000202</td>
+<td>MULTIPOLYGON (((-81.25534 43.00820, -81.25534 ...</td>
+<td>7.485081e-09</td>
+<td>0.000037</td>
+</tr>
+</tbody>
+</table>
+
+<p>5 rows × 21 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(contained)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>2</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="piccard.get_nodes" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.get_nodes">piccard.get_nodes</h4>
+<strong>piccard.get_nodes(contained_tracts_df, id, threshold)</strong><br>
+Return a GeoDataFrame with the graph connections between two census tracts of different years. Each row corresponds to one edge in the final network.
+<hr>
+<strong>Parameters:</strong><br>
+contained_tracts_df : <em>List[GeoDataFrame]</em><br>
+id: <em>string</em><br>
+threshold : <em>float</em>
+<hr>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_nodes(contained_tracts_df, <span class="bu">id</span>, threshold<span class="op">=</span><span class="fl">0.05</span>):</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> gpd.GeoDataFrame()</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    id_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2'</span>]</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Aggregating overlapped percentage area for all unique CTs </span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(contained_tracts_df)):</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>        pct_col <span class="op">=</span> contained_tracts_df[i].iloc[:, <span class="op">-</span><span class="dv">1</span>].name</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        year_pct <span class="op">=</span> (contained_tracts_df[i]</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>                    .groupby(id_cols)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>                    .agg({<span class="ss">f'</span><span class="sc">{</span>pct_col<span class="sc">}</span><span class="ss">'</span>: <span class="st">'sum'</span>}) </span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>                    .reset_index()</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>                   )</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Selecting CTs with an overlapped area above user's threshold</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        connected_cts <span class="op">=</span> year_pct[year_pct[pct_col] <span class="op">&gt;=</span> threshold][id_cols]</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>        nodes <span class="op">=</span> pd.concat([nodes, connected_cts], axis<span class="op">=</span><span class="dv">0</span>, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nodes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="example-5" class="level4">
+<h4 class="anchored" data-anchor-id="example-5">Example</h4>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>nodes.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CTUID_1</th>
+<th data-quarto-table-cell-role="th">CTUID_2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2011_0010001.00</td>
+<td>2016_0010001.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2011_0010002.00</td>
+<td>2016_0010002.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2011_0010003.01</td>
+<td>2016_0010003.01</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2011_0010003.02</td>
+<td>2016_0010003.02</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2011_0010004.00</td>
+<td>2016_0010004.00</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="piccard.assign_node_level" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.assign_node_level">piccard.assign_node_level</h4>
+<strong>piccard.assign_node_level(row, years, id)</strong><br>
+Assign the level of a node in the network based on its relative year in the overall network.
+<hr>
+<strong>Parameters:</strong><br>
+row : <em>DataFrame row</em><br>
+years : <em>List[string]</em><br>
+id: <em>string</em>
+<hr>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assign_node_level(row, years, <span class="bu">id</span>):</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(years)):</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> row[<span class="bu">id</span>].startswith(<span class="bu">str</span>(years[i])):</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> i<span class="op">+</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="piccard.get_attributes" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.get_attributes">piccard.get_attributes</h4>
+<strong>piccard.get_attributes(nodes, census_dfs, years, id)</strong><br>
+Returns all the attributes in the original data relating to the corresponding network nodes for the given year(s)
+<hr>
+<strong>Parameters:</strong><br>
+nodes : <em>DataFrame</em><br>
+census_dfs: <em>List[GeoDataFrame]</em><br>
+years : <em>List[string]</em><br>
+id: <em>string</em>
+<hr>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_attributes(nodes, census_dfs, years, <span class="bu">id</span>):</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Condensing nodes into single column df</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    single_nodes <span class="op">=</span> pd.concat([nodes[col] <span class="cf">for</span> col <span class="kw">in</span> nodes]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    single_nodes_df <span class="op">=</span> pd.DataFrame({<span class="bu">id</span>: single_nodes})</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    attr <span class="op">=</span> []</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs)):</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Adding year as a prefix for the merge </span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>        curr_df_id <span class="op">=</span> census_dfs[i].loc[:, <span class="bu">id</span>]</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        curr_df_id <span class="op">=</span> years[i] <span class="op">+</span> <span class="st">'_'</span> <span class="op">+</span> curr_df_id</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Removing geometry column in attributes for the final table </span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        year_attr <span class="op">=</span> census_dfs[i].loc[:, (census_dfs[i].columns <span class="op">!=</span> <span class="st">'geometry'</span>)].copy()</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        year_attr[<span class="bu">id</span>] <span class="op">=</span> curr_df_id</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>        year_attr <span class="op">=</span> pd.merge(single_nodes_df, year_attr, on<span class="op">=</span><span class="bu">id</span>, how<span class="op">=</span><span class="st">'right'</span>)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        attr.append(year_attr)</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    all_attr <span class="op">=</span> (pd.concat(attr)).drop_duplicates(subset<span class="op">=</span><span class="bu">id</span>)</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    all_attr <span class="op">=</span> all_attr[all_attr[<span class="bu">id</span>].notna()]</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Assigning each node it's level in the network (used for mainly drawing)</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    all_attr[<span class="st">'network_level'</span>] <span class="op">=</span> all_attr.<span class="bu">apply</span>(<span class="kw">lambda</span> x: assign_node_level(x, years, <span class="bu">id</span>), </span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>                                               axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> all_attr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="example-6" class="level4">
+<h4 class="anchored" data-anchor-id="example-6">Example</h4>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>attributes <span class="op">=</span> pc.get_attributes(nodes, census_dfs, years, <span class="st">'CTUID'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that columns will be populated based on the original input files</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># i.e., The input file for 2021 doesn't have 'LANDAREA', leading to the NaN column below</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>attributes.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CTUID</th>
+<th data-quarto-table-cell-role="th">CTNAME</th>
+<th data-quarto-table-cell-role="th">CMAUID</th>
+<th data-quarto-table-cell-role="th">CMANAME</th>
+<th data-quarto-table-cell-role="th">CMATYPE</th>
+<th data-quarto-table-cell-role="th">CMAPUID</th>
+<th data-quarto-table-cell-role="th">PRUID</th>
+<th data-quarto-table-cell-role="th">PRNAME</th>
+<th data-quarto-table-cell-role="th">DGUID</th>
+<th data-quarto-table-cell-role="th">LANDAREA</th>
+<th data-quarto-table-cell-role="th">network_level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2011_5550021.00</td>
+<td>0021.00</td>
+<td>555</td>
+<td>London</td>
+<td>B</td>
+<td>35555</td>
+<td>35</td>
+<td>Ontario</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2011_5410010.00</td>
+<td>0010.00</td>
+<td>541</td>
+<td>Kitchener - Cambridge - Waterloo</td>
+<td>B</td>
+<td>35541</td>
+<td>35</td>
+<td>Ontario</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2011_5350091.02</td>
+<td>0091.02</td>
+<td>535</td>
+<td>Toronto</td>
+<td>B</td>
+<td>35535</td>
+<td>35</td>
+<td>Ontario</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2011_5800161.01</td>
+<td>0161.01</td>
+<td>580</td>
+<td>Greater Sudbury / Grand Sudbury</td>
+<td>B</td>
+<td>35580</td>
+<td>35</td>
+<td>Ontario</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2011_2050120.00</td>
+<td>0120.00</td>
+<td>205</td>
+<td>Halifax</td>
+<td>B</td>
+<td>12205</td>
+<td>12</td>
+<td>Nova Scotia / Nouvelle-Écosse</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="piccard.find_all_paths" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.find_all_paths">piccard.find_all_paths</h4>
+<strong>piccard.find_all_paths(nodes_df, num_joins, id)</strong><br>
+Return all possible paths present in the input data.
+<hr>
+<p><strong>Parameters:</strong><br>
+nodes_df : <em>DataFrame</em><br>
+num_joins: <em>int</em><br>
+id: <em>string</em></p>
+<strong>Notes:</strong><br>
+- The resulting dataframe is <strong>not</strong> organized, and does contain duplicate entries in both the rows and columns. It is not recommended to use this function to analyze the temporal connections. It is <strong>only</strong> used as an intermediate step when creating the final network table.<br>
+- num_joins is calculated by another function when creating the final network table
+<hr>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_all_paths(nodes_df, num_joins, <span class="bu">id</span>):</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    left_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_x'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2_x'</span>]</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    right_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_y'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_x'</span>]</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Merging network nodes num_joins amount of times to ensure all paths are found  </span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    curr_join <span class="op">=</span> nodes_df.merge(nodes_df, how<span class="op">=</span><span class="st">'left'</span>, left_on<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1'</span>, right_on<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2'</span>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    curr_join <span class="op">=</span> curr_join.sort_values(by<span class="op">=</span>[<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_y'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2_y'</span>], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num_joins <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_joins <span class="op">-</span> <span class="dv">1</span>):</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>            curr_join <span class="op">=</span> curr_join.merge(curr_join, how<span class="op">=</span><span class="st">'left'</span>, </span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>                                        left_on<span class="op">=</span>left_cols, right_on<span class="op">=</span>right_cols, </span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>                                        suffixes<span class="op">=</span>[<span class="st">'x'</span>, <span class="st">'y'</span>])</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Accounting for the new column names after the merge</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>            left_cols <span class="op">=</span> [col_name <span class="op">+</span> <span class="st">'x'</span> <span class="cf">for</span> col_name <span class="kw">in</span> left_cols]</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>            right_cols <span class="op">=</span> [col_name <span class="op">+</span> <span class="st">'x'</span> <span class="cf">for</span> col_name <span class="kw">in</span> right_cols]</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (curr_join, left_cols, right_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="example-7" class="level3">
+<h3 class="anchored" data-anchor-id="example-7">Example</h3>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>all_paths <span class="op">=</span> pc.find_all_paths(nodes, <span class="dv">2</span>, <span class="st">'CTUID'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>all_paths[<span class="dv">0</span>].head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CTUID_1_xx</th>
+<th data-quarto-table-cell-role="th">CTUID_2_xx</th>
+<th data-quarto-table-cell-role="th">CTUID_1_yx</th>
+<th data-quarto-table-cell-role="th">CTUID_2_yx</th>
+<th data-quarto-table-cell-role="th">CTUID_1_xy</th>
+<th data-quarto-table-cell-role="th">CTUID_2_xy</th>
+<th data-quarto-table-cell-role="th">CTUID_1_yy</th>
+<th data-quarto-table-cell-role="th">CTUID_2_yy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2016_0010001.00</td>
+<td>2021_0010001.00</td>
+<td>2011_0010001.00</td>
+<td>2016_0010001.00</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2016_0010002.00</td>
+<td>2021_0010002.00</td>
+<td>2011_0010002.00</td>
+<td>2016_0010002.00</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2016_0010003.01</td>
+<td>2021_0010003.01</td>
+<td>2011_0010003.01</td>
+<td>2016_0010003.01</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2016_0010003.02</td>
+<td>2021_0010003.02</td>
+<td>2011_0010003.02</td>
+<td>2016_0010003.02</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2016_0010004.00</td>
+<td>2021_0010004.01</td>
+<td>2011_0010004.00</td>
+<td>2016_0010004.00</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>[all_paths[<span class="dv">1</span>], all_paths[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>[['CTUID_1_xx', 'CTUID_2_xx'], ['CTUID_1_yx', 'CTUID_1_xx']]</code></pre>
+</div>
+</div>
+<hr>
+<section id="piccard.find_full_paths" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.find_full_paths">piccard.find_full_paths</h4>
+<strong>piccard.find_full_paths(full_paths_df, final_cols)</strong><br>
+Return all full paths present in input data.
+<hr>
+<p><strong>Parameters:</strong><br>
+full_paths_df: <em>DataFrame</em><br>
+final_cols: <em>List[string]</em></p>
+<strong>Notes:</strong><br>
+- A full path is defined as a path in the network where the starting node is from the first input year and the ending node is from the last input year (i.e., a path which spans the year network).<br>
+
+<hr>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_full_paths(full_paths_df, final_cols):</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    full_paths <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">not</span> full_paths_df.empty):</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>        full_paths <span class="op">=</span> full_paths_df.T.drop_duplicates().sort_values(by<span class="op">=</span><span class="dv">0</span>).T</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>        full_paths.columns <span class="op">=</span> final_cols</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> full_paths</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="piccard.first_year_partial_paths" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.first_year_partial_paths">piccard.first_year_partial_paths</h4>
+<strong>piccard.first_year_partial_paths(all_partial_paths, years, final_cols)</strong><br>
+Return all partial paths only for the first input year.
+<hr>
+<p><strong>Parameters:</strong><br>
+all_partial_paths : <em>DataFrame</em><br>
+years: <em>List[string]</em><br>
+final_cols: <em>List[string]</em></p>
+<strong>Notes:</strong><br>
+- A partial path is defined as a path in the network where the starting and ending nodes are of any year (i.e., a path which does <strong>not</strong> span the entire network, not a full path).
+<hr>
+<div class="cell" data-execution_count="114">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> first_year_partial_paths(all_partial_paths, years, final_cols):</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    drop_cols <span class="op">=</span> final_cols[<span class="dv">1</span>:]</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Selecting paths with the starting node as the first year</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(years[<span class="dv">0</span>] <span class="op">+</span> <span class="st">'_'</span>)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> all_partial_paths[mask]</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Calculating which year contains the ending node </span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    max_partial_year <span class="op">=</span> <span class="bu">max</span>(all_partial_paths.T.stack().values)[:<span class="dv">4</span>]</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN columns to the end for each year as they don't exist in data</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ((max_partial_year <span class="op">&gt;=</span> years[<span class="dv">1</span>]) <span class="op">&amp;</span> (max_partial_year <span class="op">!=</span> years[<span class="op">-</span><span class="dv">1</span>])):</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">reversed</span>(<span class="bu">range</span>((num_years <span class="op">-</span> <span class="dv">1</span>) <span class="op">-</span> max_partial_year)):</span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>            last_col <span class="op">=</span> <span class="bu">len</span>(first_year_partials.columns)</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>            first_year_partials.insert(last_col, final_cols[<span class="op">-</span>i], np.NaN)</span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>        first_year_partials.columns <span class="op">=</span> final_cols </span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> first_year_partials.T.drop_duplicates().dropna().T</span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>    first_year_partials.columns <span class="op">=</span> final_cols</span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> first_year_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="piccard.unique_partial_paths" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.unique_partial_paths">piccard.unique_partial_paths</h4>
+<strong>piccard.unique_partial_paths(all_partial_paths, years, left_cols, final_cols)</strong><br>
+Return all unique partial paths between two consecutive input years.
+<hr>
+<p><strong>Parameters:</strong><br>
+all_partial_paths : <em>DataFrame</em><br>
+years: <em>List[string]</em><br>
+left_cols: <em>List[string]</em><br>
+final_cols: <em>List[string]</em></p>
+<strong>Notes:</strong><br>
+- A partial path is defined as a path in the network where the starting and ending nodes are of any year (i.e., a path which does <strong>not</strong> span the entire network, not a full path).
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> unique_partial_paths(all_partial_paths, years, left_cols, final_cols):</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    unique_partials <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, num_years):</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> years[i] <span class="op">+</span> <span class="st">'_'</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>        prev_year <span class="op">=</span> years[i<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> <span class="st">'_'</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>        curr_year_mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(curr_year)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>        prev_year_mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(prev_year)</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>        curr_year_partials <span class="op">=</span> all_partial_paths[curr_year_mask]</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>        prev_year_partials <span class="op">=</span> all_partial_paths[prev_year_mask]</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>        curr_year_mask <span class="op">=</span> <span class="op">~</span>curr_year_partials[left_cols[<span class="dv">0</span>]].isin(prev_year_partials) </span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>        curr_year_unique <span class="op">=</span> curr_year_partials[curr_year_mask]</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>        curr_year_unique <span class="op">=</span> curr_year_partials.dropna(axis<span class="op">=</span><span class="dv">1</span>).T.drop_duplicates().T</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN column to the front to account for missing first year</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(i):</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>            curr_year_unique.insert(<span class="dv">0</span>, final_cols[k], np.NaN)</span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN column to the end to account for missing last year</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span>(<span class="kw">not</span> curr_year_unique.empty):</span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>            curr_year_val <span class="op">=</span> <span class="bu">max</span>(curr_year_unique.T.stack().values)[:<span class="dv">4</span>]</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>            curr_year_index <span class="op">=</span> years.index(curr_year_val)</span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (curr_year_index <span class="op">!=</span> years[<span class="op">-</span><span class="dv">1</span>]):</span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>((num_years <span class="op">-</span> <span class="dv">1</span>) <span class="op">-</span> curr_year_index):</span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>                    last_col <span class="op">=</span> <span class="bu">len</span>(curr_year_unique.columns)</span>
+<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>                    curr_year_unique.insert(last_col, final_cols[<span class="op">-</span>j], np.NaN)</span>
+<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>                    </span>
+<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>            curr_year_unique.columns <span class="op">=</span> final_cols</span>
+<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>        unique_partials <span class="op">=</span> pd.concat([unique_partials, curr_year_unique])</span>
+<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> unique_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="piccard.find_partial_paths" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.find_partial_paths">piccard.find_partial_paths</h4>
+<strong>piccard.find_partial_paths(partial_paths_df, years, left_cols, final_cols, exclude_nodes)</strong><br>
+Return all partial paths present in input data.
+<hr>
+<p><strong>Parameters:</strong><br>
+partial_paths_df : <em>DataFrame</em><br>
+years: <em>List[string]</em><br>
+left_cols: <em>List[string]</em><br>
+final_cols: <em>List[string]</em><br>
+exclude_nodes: <em>DataFrame</em></p>
+<strong>Notes:</strong><br>
+- A partial path is defined as a path in the network where the starting and ending nodes are of any year (i.e., a path which does <strong>not</strong> span the entire network, not a full path).
+<hr>
+<div class="cell" data-execution_count="74">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_partial_paths(partial_paths_df, years, left_cols, final_cols, exclude_nodes): </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    all_partial_paths <span class="op">=</span> partial_paths_df.T.drop_duplicates().T </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    all_partial_paths <span class="op">=</span> all_partial_paths[<span class="op">~</span>all_partial_paths[left_cols[<span class="dv">0</span>]].isin(exclude_nodes)]</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> first_year_partial_paths(all_partial_paths, years, final_cols)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    unique_partials <span class="op">=</span> unique_partial_paths(all_partial_paths, years, left_cols, final_cols)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    all_partials <span class="op">=</span> pd.concat([unique_partials, first_year_partials])</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> all_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="piccard.attach_attributes" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.attach_attributes">piccard.attach_attributes</h4>
+<strong>piccard.attach_attributes(network_table, attributes, years, final_cols, id)</strong><br>
+Return network table with attached attributes corresponding to the nodes involved.
+<hr>
+<strong>Parameters:</strong><br>
+network_table : <em>DataFrame</em><br>
+attributes: <em>DataFrame</em><br>
+years: <em>List[string]</em><br>
+final_cols: <em>List[string]</em><br>
+id: <em>string</em>
+<hr>
+<div class="cell" data-execution_count="80">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> attach_attributes(network_table, attributes, years, final_cols, <span class="bu">id</span>):</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    years_df_list <span class="op">=</span> []</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(final_cols)):</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>        col <span class="op">=</span> <span class="bu">str</span>(final_cols[i])</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Getting attributes for each year</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>        table_col <span class="op">=</span> network_table[col].to_frame().astype(<span class="bu">object</span>)</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> table_col.merge(attributes, how<span class="op">=</span><span class="st">'left'</span>, left_on<span class="op">=</span>col, right_on<span class="op">=</span><span class="bu">id</span>)</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> curr_year.drop([<span class="bu">id</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Suppressing warning for str.replace</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> warnings.catch_warnings():</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>            warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>            curr_year <span class="op">=</span> curr_year.<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.<span class="bu">str</span>.replace(<span class="vs">r'[0-9]+_'</span>, <span class="st">''</span>) </span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="cf">if</span> x.dtypes<span class="op">==</span><span class="bu">object</span> <span class="cf">else</span> x).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Formatting all columns as 'colname_year'</span></span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>            curr_year_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>years[i]<span class="sc">}</span><span class="ss">'</span> </span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>                              <span class="cf">if</span> col <span class="op">!=</span> final_cols[i] <span class="kw">and</span> col <span class="op">!=</span> <span class="ss">f'area_</span><span class="sc">{</span>years[i]<span class="sc">}</span><span class="ss">'</span> </span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>                              <span class="cf">else</span> col <span class="cf">for</span> col <span class="kw">in</span> curr_year.columns]</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>            curr_year.columns <span class="op">=</span> curr_year_cols</span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>            years_df_list.append(curr_year)</span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Combining all years dfs into one</span></span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> (pd.concat(years_df_list, axis<span class="op">=</span><span class="dv">1</span>)).dropna(how<span class="op">=</span><span class="st">'all'</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> network_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
