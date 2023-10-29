@@ -31,10 +31,13 @@ from piccard import piccard as pc
 **piccard.create_network_table(census_dfs, years, id, threshold=0.05)**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return the final network table with all the temporal connections present in *census_dfs* over *years* when each yearly geographic area has at most *threshold* percentage of overlap with its corresponding area(s) in the next year.  
 
-**piccard.draw_subnetwork(network_table, G, sample_pct=0.005)**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Draws a subgraph of the network representation, using a sample_pct% path sample from the network table.  
+**piccard.draw_subnetwork(network_table, G, num_cts=4)**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Draws a subgraph of the network representation where *num_cts* is the number of census tracts in the first census year which are followed through all census years.  
 
-**Note**: Further explanation of the parameters and example code for all the above functions can be found in the documentation.  
+**piccard.plot_num_cts(network_table, years, id)**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Plots the number of census tracts across all given census years.
+
+**Note**: Further explanation of the parameters and example code for all the above functions can be found in the [documentation](https://htmlpreview.github.io/?https://github.com/lodi-m/piccard/blob/main/docs/documentation.html).  
 
 ## Dependencies
 [GeoPandas - Allows spatial operations in Python, making it easier to work with geospatial data](https://geopandas.org/en/stable/)  

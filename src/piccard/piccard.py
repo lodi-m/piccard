@@ -336,30 +336,62 @@ def create_network_table(census_dfs, years, id, threshold=0.05):
   return final_table
 
 
-def draw_subnetwork(network_table, G, sample_pct=0.005):
+def draw_subnetwork(network_table, G, num_cts=4):
   """
-  Draws a subgraph of the network representation, using a sample_pct percentage
-  path sample from the network table.
+  Draws a subgraph of the network representation where num_cts is the
+  number of census tracts in the first census year which are followed through
+  all census years.
+
+  Note: A large num_cts value may result in an unorganized and hard-to-read
+        visualization. 
   """
   r = re.compile('ctuid_[0-9]+')
+
   table_cols = list(network_table.columns)
   sample_cols = list(filter(r.match, table_cols))
 
-  network_table = network_table[sample_cols]
-  sample_table = network_table.sample(frac=sample_pct)
+  #Sampling n nodes from the first year
+  ct_ids = network_table[sample_cols]
+  first_year_mask = network_table.iloc[:, 0].notnull()
+  first_year_sample = ct_ids.iloc[:, 0][first_year_mask].sample(num_cts)
 
-  #Adding corresponding year prefix to all nodes
+  #Selecting all connections beginning with sample nodes from first year
+  ct_sample = ct_ids[ct_ids.iloc[:, 0].isin(first_year_sample)]
+
+  sample_nodes = []
+  #Adding corresponding year prefix to all nodes for labels and collecting all 
+  #visualization nodes in a single list
   for i in range(len(sample_cols)):
-      curr_col = sample_cols[i]
-      sample_table[curr_col] = sample_cols[i][6:] + '_' + sample_table[curr_col]
-  sample_nodes = sample_table.stack().droplevel(1).sort_values()
+    curr_col = sample_cols[i]
+    curr_nodes = sample_cols[i][6:] + '_' + ct_sample.loc[:, curr_col]
+    sample_nodes.append(curr_nodes)
+
+  sample_nodes = pd.concat(sample_nodes, axis=0, sort=True, ignore_index=True)
 
   subgraph = G.subgraph(sample_nodes)
 
-  plt.figure(figsize=(20,30))
+  #Calculating the figure size based on the number of nodes
+  num_nodes = len(subgraph)
+  fig_width = max(10, num_nodes * 0.2)  # Minimum figure width of 10
+  fig_height = max(5, num_nodes * 0.2)  # Minimum figure height of 5
+  
+  plt.figure(figsize=(fig_width, fig_height))
   pos = nx.multipartite_layout(subgraph, subset_key='network_level')
 
-  nx.draw(subgraph, pos, with_labels=True)
+  nx.draw(subgraph, pos, with_labels=True, node_size=300, node_color='orange')
   plt.show()
 
 
+def plot_num_cts(network_table, years, id):
+  '''
+  Plots the number of census tracts across all given census years.
+  '''
+  num_years = len(years)
+  ct_df = network_table.iloc[:, :num_years]
+  ct_per_year = list(ct_df.apply(lambda x: x.notnull().sum()))
+
+  plt.plot(years, ct_per_year)
+  plt.title(f'Number of {id}s across all census years')
+  plt.xlabel('Year')
+  plt.ylabel(f'Number of {id}s')
+  plt.show()
