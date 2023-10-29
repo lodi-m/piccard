@@ -746,38 +746,62 @@ threshold: <em>float</em></p>
 <hr>
 <section id="piccard.draw_subnetwork" class="level4">
 <h4 class="anchored" data-anchor-id="piccard.draw_subnetwork">piccard.draw_subnetwork</h4>
-<strong>piccard.draw_subnetwork(network_table, G, sample_pct=0.005)</strong><br>
-Draws a subgraph of the network representation, using a sample_pct% path sample from the network table.
+<strong>piccard.draw_subnetwork(network_table, G, num_cts=4)</strong><br>
+Draws a subgraph of the network representation where num_cts is the number of census tracts in the first census year which are followed through all census years.
 <hr>
 <p><strong>Parameters:</strong><br>
 network_table : <em>DataFrame</em><br>
 G: <em>NetworkX Graph</em><br>
-sample_pct: <em>float</em></p>
+num_cts: <em>int</em></p>
 <strong>Notes:</strong><br>
-- The network_table is required to be generated first before using this function.
+- The network_table and graph G is required to be generated first before using this function. - A larger num_cts value may result in an unorganized and hard-to-read visualization.
 <hr>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> draw_subnetwork(network_table, G, sample_pct<span class="op">=</span><span class="fl">0.005</span>):</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Getting sample from network_table</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> re.<span class="bu">compile</span>(<span class="st">'ct_[0-9]+'</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    table_cols <span class="op">=</span> <span class="bu">list</span>(network_table.columns)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    sample_cols <span class="op">=</span> <span class="bu">list</span>(<span class="bu">filter</span>(r.match, table_cols))</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> network_table[sample_cols]</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    sample_table <span class="op">=</span> network_table.sample(frac<span class="op">=</span>sample_pct)</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Adding corresponding year prefix to all nodes </span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sample_cols)):</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>        curr_col <span class="op">=</span> sample_cols[i]</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        sample_table[curr_col] <span class="op">=</span> sample_cols[i][<span class="dv">3</span>:] <span class="op">+</span> <span class="st">'_'</span> <span class="op">+</span> sample_table[curr_col]</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    sample_nodes <span class="op">=</span> sample_table.stack().droplevel(<span class="dv">1</span>).sort_values()</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    subgraph <span class="op">=</span> G.subgraph(sample_nodes)        </span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">30</span>))    </span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    pos <span class="op">=</span> nx.multipartite_layout(subgraph, subset_key<span class="op">=</span><span class="st">'network_level'</span>)    </span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    nx.draw(subgraph, pos, with_labels<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> draw_subnetwork(network_table, G, num_cts<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">"""</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">  Draws a subgraph of the network representation where num_cts is the</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">  number of census tracts in the first census year which are followed through</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">  all census years.</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">  Note: A large num_cts value may result in an unorganized and hard-to-read</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">        visualization. </span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co">  """</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  r <span class="op">=</span> re.<span class="bu">compile</span>(<span class="st">'ctuid_[0-9]+'</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  table_cols <span class="op">=</span> <span class="bu">list</span>(network_table.columns)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  sample_cols <span class="op">=</span> <span class="bu">list</span>(<span class="bu">filter</span>(r.match, table_cols))</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Sampling n nodes from the first year</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  ct_ids <span class="op">=</span> network_table[sample_cols]</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  first_year_mask <span class="op">=</span> network_table.iloc[:, <span class="dv">0</span>].notnull()</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  first_year_sample <span class="op">=</span> ct_ids.iloc[:, <span class="dv">0</span>][first_year_mask].sample(num_cts)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Selecting all connections beginning with sample nodes from first year</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  ct_sample <span class="op">=</span> ct_ids[ct_ids.iloc[:, <span class="dv">0</span>].isin(first_year_sample)]</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  sample_nodes <span class="op">=</span> []</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Adding corresponding year prefix to all nodes for labels and collecting all </span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">#visualization nodes in a single list</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sample_cols)):</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    curr_col <span class="op">=</span> sample_cols[i]</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    curr_nodes <span class="op">=</span> sample_cols[i][<span class="dv">6</span>:] <span class="op">+</span> <span class="st">'_'</span> <span class="op">+</span> ct_sample.loc[:, curr_col]</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    sample_nodes.append(curr_nodes)</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  sample_nodes <span class="op">=</span> pd.concat(sample_nodes, axis<span class="op">=</span><span class="dv">0</span>, sort<span class="op">=</span><span class="va">True</span>, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>  subgraph <span class="op">=</span> G.subgraph(sample_nodes)</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Calculating the figure size based on the number of nodes</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>  num_nodes <span class="op">=</span> <span class="bu">len</span>(subgraph)</span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>  fig_width <span class="op">=</span> <span class="bu">max</span>(<span class="dv">10</span>, num_nodes <span class="op">*</span> <span class="fl">0.2</span>)  <span class="co"># Minimum figure width of 10</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>  fig_height <span class="op">=</span> <span class="bu">max</span>(<span class="dv">5</span>, num_nodes <span class="op">*</span> <span class="fl">0.2</span>)  <span class="co"># Minimum figure height of 5</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>  plt.figure(figsize<span class="op">=</span>(fig_width, fig_height))</span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>  pos <span class="op">=</span> nx.multipartite_layout(subgraph, subset_key<span class="op">=</span><span class="st">'network_level'</span>)</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>  nx.draw(subgraph, pos, with_labels<span class="op">=</span><span class="va">True</span>, node_size<span class="op">=</span><span class="dv">300</span>, node_color<span class="op">=</span><span class="st">'orange'</span>)</span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>  plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -793,6 +817,47 @@ sample_pct: <em>float</em></p>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pc.draw_subnetwork(network_table, G)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="documentation_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<hr>
+<section id="piccard.plot_num_cts" class="level4">
+<h4 class="anchored" data-anchor-id="piccard.plot_num_cts">piccard.plot_num_cts</h4>
+<strong>piccard.plot_num_cts(network_table, years, id)</strong><br>
+Plots the number of census tracts across all given census years.
+<hr>
+<p><strong>Parameters:</strong><br>
+network_table : <em>DataFrame</em><br>
+years: <em>List[str]</em><br>
+id: <em>str</em></p>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_num_cts(network_table, years, <span class="bu">id</span>):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">'''</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">  Plots the number of census tracts across all given census years.</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">  '''</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  ct_df <span class="op">=</span> network_table.iloc[:, :num_years]</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  ct_per_year <span class="op">=</span> <span class="bu">list</span>(ct_df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.notnull().<span class="bu">sum</span>()))</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  plt.plot(years, ct_per_year)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  plt.title(<span class="ss">f'Number of </span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">s across all census years'</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  plt.xlabel(<span class="st">'Year'</span>)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  plt.ylabel(<span class="ss">f'Number of </span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">s'</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="example-4" class="level3">
+<h3 class="anchored" data-anchor-id="example-4">Example</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>network_table <span class="op">=</span> pc.create_network_table(census_dfs, years, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pc.plot_num_cts(network_table, years, <span class="st">'CT'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="documentation_files/figure-html/cell-21-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <hr>
@@ -814,45 +879,45 @@ years : <em>List[string]</em></p>
 
 <hr>
 <div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ct_containment(preprocessed_dfs, years):</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    contained_tracts <span class="op">=</span> []</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_years<span class="op">-</span><span class="dv">1</span>):</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Getting CTs which are contained within a previous year's CT</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        contained_df <span class="op">=</span> gpd.overlay(preprocessed_dfs[i], preprocessed_dfs[i<span class="op">+</span><span class="dv">1</span>],</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                                   how<span class="op">=</span><span class="st">'intersection'</span>)</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> warnings.catch_warnings():</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>            warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">UserWarning</span>)</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            contained_df[<span class="st">'area_intersection'</span>] <span class="op">=</span> contained_df.area</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Calculating the percentage of the overlapping area between the 2 years</span></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>            pct_col <span class="op">=</span> <span class="st">'pct_'</span> <span class="op">+</span> years[i<span class="op">+</span><span class="dv">1</span>] <span class="op">+</span> <span class="st">'_of_'</span> <span class="op">+</span> years[i]</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            contained_df[pct_col] <span class="op">=</span> (contained_df[<span class="st">'area_intersection'</span>] <span class="op">/</span></span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>                                     contained_df[[<span class="st">'area_'</span><span class="op">+</span>years[i],</span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>                                                   <span class="st">'area_'</span><span class="op">+</span>years[i<span class="op">+</span><span class="dv">1</span>]]].<span class="bu">min</span>(axis<span class="op">=</span><span class="dv">1</span>))</span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        contained_tracts.append(contained_df)</span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> contained_tracts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ct_containment(preprocessed_dfs, years):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    contained_tracts <span class="op">=</span> []</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_years<span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Getting CTs which are contained within a previous year's CT</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>        contained_df <span class="op">=</span> gpd.overlay(preprocessed_dfs[i], preprocessed_dfs[i<span class="op">+</span><span class="dv">1</span>],</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>                                   how<span class="op">=</span><span class="st">'intersection'</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> warnings.catch_warnings():</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>            warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">UserWarning</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>            contained_df[<span class="st">'area_intersection'</span>] <span class="op">=</span> contained_df.area</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Calculating the percentage of the overlapping area between the 2 years</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>            pct_col <span class="op">=</span> <span class="st">'pct_'</span> <span class="op">+</span> years[i<span class="op">+</span><span class="dv">1</span>] <span class="op">+</span> <span class="st">'_of_'</span> <span class="op">+</span> years[i]</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>            contained_df[pct_col] <span class="op">=</span> (contained_df[<span class="st">'area_intersection'</span>] <span class="op">/</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>                                     contained_df[[<span class="st">'area_'</span><span class="op">+</span>years[i],</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>                                                   <span class="st">'area_'</span><span class="op">+</span>years[i<span class="op">+</span><span class="dv">1</span>]]].<span class="bu">min</span>(axis<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>        contained_tracts.append(contained_df)</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> contained_tracts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="example-4" class="level4">
-<h4 class="anchored" data-anchor-id="example-4">Example</h4>
+<section id="example-5" class="level4">
+<h4 class="anchored" data-anchor-id="example-5">Example</h4>
 <div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>ct_2011 <span class="op">=</span> gpd.read_file(<span class="st">"data/gct_000b11a_e/gct_000b11a_e.shp"</span>)</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>ct_2016 <span class="op">=</span> gpd.read_file(<span class="st">"data/lct_000b16a_e/lct_000b16a_e.shp"</span>)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>ct_2021 <span class="op">=</span> gpd.read_file(<span class="st">"data/lct_000b21a_e/lct_000b21a_e.shp"</span>)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>ct_2011 <span class="op">=</span> gpd.read_file(<span class="st">"data/gct_000b11a_e/gct_000b11a_e.shp"</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>ct_2016 <span class="op">=</span> gpd.read_file(<span class="st">"data/lct_000b16a_e/lct_000b16a_e.shp"</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>ct_2021 <span class="op">=</span> gpd.read_file(<span class="st">"data/lct_000b21a_e/lct_000b21a_e.shp"</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-tags="[]" data-execution_count="41">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>contained[<span class="dv">0</span>].head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>contained[<span class="dv">0</span>].head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="41">
 <div>
 
@@ -1013,7 +1078,7 @@ years : <em>List[string]</em></p>
 </div>
 </div>
 <div class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(contained)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(contained)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="20">
 <pre><code>2</code></pre>
 </div>
@@ -1031,41 +1096,41 @@ id: <em>string</em><br>
 threshold : <em>float</em>
 <hr>
 <div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_nodes(contained_tracts_df, <span class="bu">id</span>, threshold<span class="op">=</span><span class="fl">0.05</span>):</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> gpd.GeoDataFrame()</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    id_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2'</span>]</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Aggregating overlapped percentage area for all unique CTs </span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(contained_tracts_df)):</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>        pct_col <span class="op">=</span> contained_tracts_df[i].iloc[:, <span class="op">-</span><span class="dv">1</span>].name</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        year_pct <span class="op">=</span> (contained_tracts_df[i]</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>                    .groupby(id_cols)</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>                    .agg({<span class="ss">f'</span><span class="sc">{</span>pct_col<span class="sc">}</span><span class="ss">'</span>: <span class="st">'sum'</span>}) </span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>                    .reset_index()</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>                   )</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Selecting CTs with an overlapped area above user's threshold</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        connected_cts <span class="op">=</span> year_pct[year_pct[pct_col] <span class="op">&gt;=</span> threshold][id_cols]</span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>        nodes <span class="op">=</span> pd.concat([nodes, connected_cts], axis<span class="op">=</span><span class="dv">0</span>, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nodes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_nodes(contained_tracts_df, <span class="bu">id</span>, threshold<span class="op">=</span><span class="fl">0.05</span>):</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> gpd.GeoDataFrame()</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    id_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2'</span>]</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Aggregating overlapped percentage area for all unique CTs </span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(contained_tracts_df)):</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        pct_col <span class="op">=</span> contained_tracts_df[i].iloc[:, <span class="op">-</span><span class="dv">1</span>].name</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        year_pct <span class="op">=</span> (contained_tracts_df[i]</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>                    .groupby(id_cols)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>                    .agg({<span class="ss">f'</span><span class="sc">{</span>pct_col<span class="sc">}</span><span class="ss">'</span>: <span class="st">'sum'</span>}) </span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>                    .reset_index()</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>                   )</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Selecting CTs with an overlapped area above user's threshold</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>        connected_cts <span class="op">=</span> year_pct[year_pct[pct_col] <span class="op">&gt;=</span> threshold][id_cols]</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>        nodes <span class="op">=</span> pd.concat([nodes, connected_cts], axis<span class="op">=</span><span class="dv">0</span>, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nodes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="example-5" class="level4">
-<h4 class="anchored" data-anchor-id="example-5">Example</h4>
+<section id="example-6" class="level4">
+<h4 class="anchored" data-anchor-id="example-6">Example</h4>
 <div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>nodes.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>nodes.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
@@ -1123,10 +1188,10 @@ years : <em>List[string]</em><br>
 id: <em>string</em>
 <hr>
 <div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assign_node_level(row, years, <span class="bu">id</span>):</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(years)):</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> row[<span class="bu">id</span>].startswith(<span class="bu">str</span>(years[i])):</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> i<span class="op">+</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assign_node_level(row, years, <span class="bu">id</span>):</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(years)):</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> row[<span class="bu">id</span>].startswith(<span class="bu">str</span>(years[i])):</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> i<span class="op">+</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <hr>
 </section>
@@ -1142,51 +1207,51 @@ years : <em>List[string]</em><br>
 id: <em>string</em>
 <hr>
 <div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_attributes(nodes, census_dfs, years, <span class="bu">id</span>):</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Condensing nodes into single column df</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    single_nodes <span class="op">=</span> pd.concat([nodes[col] <span class="cf">for</span> col <span class="kw">in</span> nodes]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    single_nodes_df <span class="op">=</span> pd.DataFrame({<span class="bu">id</span>: single_nodes})</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    attr <span class="op">=</span> []</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs)):</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Adding year as a prefix for the merge </span></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>        curr_df_id <span class="op">=</span> census_dfs[i].loc[:, <span class="bu">id</span>]</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        curr_df_id <span class="op">=</span> years[i] <span class="op">+</span> <span class="st">'_'</span> <span class="op">+</span> curr_df_id</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Removing geometry column in attributes for the final table </span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        year_attr <span class="op">=</span> census_dfs[i].loc[:, (census_dfs[i].columns <span class="op">!=</span> <span class="st">'geometry'</span>)].copy()</span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        year_attr[<span class="bu">id</span>] <span class="op">=</span> curr_df_id</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>        year_attr <span class="op">=</span> pd.merge(single_nodes_df, year_attr, on<span class="op">=</span><span class="bu">id</span>, how<span class="op">=</span><span class="st">'right'</span>)</span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        attr.append(year_attr)</span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    all_attr <span class="op">=</span> (pd.concat(attr)).drop_duplicates(subset<span class="op">=</span><span class="bu">id</span>)</span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    all_attr <span class="op">=</span> all_attr[all_attr[<span class="bu">id</span>].notna()]</span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Assigning each node it's level in the network (used for mainly drawing)</span></span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    all_attr[<span class="st">'network_level'</span>] <span class="op">=</span> all_attr.<span class="bu">apply</span>(<span class="kw">lambda</span> x: assign_node_level(x, years, <span class="bu">id</span>), </span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>                                               axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> all_attr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_attributes(nodes, census_dfs, years, <span class="bu">id</span>):</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Condensing nodes into single column df</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    single_nodes <span class="op">=</span> pd.concat([nodes[col] <span class="cf">for</span> col <span class="kw">in</span> nodes]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    single_nodes_df <span class="op">=</span> pd.DataFrame({<span class="bu">id</span>: single_nodes})</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    attr <span class="op">=</span> []</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs)):</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Adding year as a prefix for the merge </span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>        curr_df_id <span class="op">=</span> census_dfs[i].loc[:, <span class="bu">id</span>]</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>        curr_df_id <span class="op">=</span> years[i] <span class="op">+</span> <span class="st">'_'</span> <span class="op">+</span> curr_df_id</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Removing geometry column in attributes for the final table </span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>        year_attr <span class="op">=</span> census_dfs[i].loc[:, (census_dfs[i].columns <span class="op">!=</span> <span class="st">'geometry'</span>)].copy()</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>        year_attr[<span class="bu">id</span>] <span class="op">=</span> curr_df_id</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>        year_attr <span class="op">=</span> pd.merge(single_nodes_df, year_attr, on<span class="op">=</span><span class="bu">id</span>, how<span class="op">=</span><span class="st">'right'</span>)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>        attr.append(year_attr)</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    all_attr <span class="op">=</span> (pd.concat(attr)).drop_duplicates(subset<span class="op">=</span><span class="bu">id</span>)</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    all_attr <span class="op">=</span> all_attr[all_attr[<span class="bu">id</span>].notna()]</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Assigning each node it's level in the network (used for mainly drawing)</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    all_attr[<span class="st">'network_level'</span>] <span class="op">=</span> all_attr.<span class="bu">apply</span>(<span class="kw">lambda</span> x: assign_node_level(x, years, <span class="bu">id</span>), </span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>                                               axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> all_attr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="example-6" class="level4">
-<h4 class="anchored" data-anchor-id="example-6">Example</h4>
+<section id="example-7" class="level4">
+<h4 class="anchored" data-anchor-id="example-7">Example</h4>
 <div class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>attributes <span class="op">=</span> pc.get_attributes(nodes, census_dfs, years, <span class="st">'CTUID'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>attributes <span class="op">=</span> pc.get_attributes(nodes, census_dfs, years, <span class="st">'CTUID'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that columns will be populated based on the original input files</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># i.e., The input file for 2021 doesn't have 'LANDAREA', leading to the NaN column below</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>attributes.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that columns will be populated based on the original input files</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># i.e., The input file for 2021 doesn't have 'LANDAREA', leading to the NaN column below</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>attributes.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 <div>
 
@@ -1301,46 +1366,46 @@ id: <em>string</em></p>
 - num_joins is calculated by another function when creating the final network table
 <hr>
 <div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_all_paths(nodes_df, num_joins, <span class="bu">id</span>):</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    left_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_x'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2_x'</span>]</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    right_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_y'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_x'</span>]</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Merging network nodes num_joins amount of times to ensure all paths are found  </span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    curr_join <span class="op">=</span> nodes_df.merge(nodes_df, how<span class="op">=</span><span class="st">'left'</span>, left_on<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1'</span>, right_on<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2'</span>)</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    curr_join <span class="op">=</span> curr_join.sort_values(by<span class="op">=</span>[<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_y'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2_y'</span>], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num_joins <span class="op">&gt;</span> <span class="dv">1</span>:</span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_joins <span class="op">-</span> <span class="dv">1</span>):</span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>            curr_join <span class="op">=</span> curr_join.merge(curr_join, how<span class="op">=</span><span class="st">'left'</span>, </span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>                                        left_on<span class="op">=</span>left_cols, right_on<span class="op">=</span>right_cols, </span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>                                        suffixes<span class="op">=</span>[<span class="st">'x'</span>, <span class="st">'y'</span>])</span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Accounting for the new column names after the merge</span></span>
-<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>            left_cols <span class="op">=</span> [col_name <span class="op">+</span> <span class="st">'x'</span> <span class="cf">for</span> col_name <span class="kw">in</span> left_cols]</span>
-<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>            right_cols <span class="op">=</span> [col_name <span class="op">+</span> <span class="st">'x'</span> <span class="cf">for</span> col_name <span class="kw">in</span> right_cols]</span>
-<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (curr_join, left_cols, right_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_all_paths(nodes_df, num_joins, <span class="bu">id</span>):</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    left_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_x'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2_x'</span>]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    right_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_y'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_x'</span>]</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Merging network nodes num_joins amount of times to ensure all paths are found  </span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    curr_join <span class="op">=</span> nodes_df.merge(nodes_df, how<span class="op">=</span><span class="st">'left'</span>, left_on<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1'</span>, right_on<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2'</span>)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    curr_join <span class="op">=</span> curr_join.sort_values(by<span class="op">=</span>[<span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_1_y'</span>, <span class="ss">f'</span><span class="sc">{</span><span class="bu">id</span><span class="sc">}</span><span class="ss">_2_y'</span>], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num_joins <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_joins <span class="op">-</span> <span class="dv">1</span>):</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>            curr_join <span class="op">=</span> curr_join.merge(curr_join, how<span class="op">=</span><span class="st">'left'</span>, </span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                                        left_on<span class="op">=</span>left_cols, right_on<span class="op">=</span>right_cols, </span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                                        suffixes<span class="op">=</span>[<span class="st">'x'</span>, <span class="st">'y'</span>])</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Accounting for the new column names after the merge</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>            left_cols <span class="op">=</span> [col_name <span class="op">+</span> <span class="st">'x'</span> <span class="cf">for</span> col_name <span class="kw">in</span> left_cols]</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>            right_cols <span class="op">=</span> [col_name <span class="op">+</span> <span class="st">'x'</span> <span class="cf">for</span> col_name <span class="kw">in</span> right_cols]</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (curr_join, left_cols, right_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
-<section id="example-7" class="level3">
-<h3 class="anchored" data-anchor-id="example-7">Example</h3>
+<section id="example-8" class="level3">
+<h3 class="anchored" data-anchor-id="example-8">Example</h3>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> piccard <span class="im">import</span> piccard <span class="im">as</span> pc</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> [<span class="st">'2011'</span>, <span class="st">'2016'</span>, <span class="st">'2021'</span>]</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>census_dfs <span class="op">=</span> [ct_2011, ct_2016, ct_2021]</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>preprocessed_dfs <span class="op">=</span> [pc.preprocessing(census_dfs[i], years[i], <span class="st">'CTUID'</span>) </span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(census_dfs))]</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>contained <span class="op">=</span> pc.ct_containment(preprocessed_dfs, years)</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pc.get_nodes(contained, <span class="st">'CTUID'</span>, <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>all_paths <span class="op">=</span> pc.find_all_paths(nodes, <span class="dv">2</span>, <span class="st">'CTUID'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>all_paths <span class="op">=</span> pc.find_all_paths(nodes, <span class="dv">2</span>, <span class="st">'CTUID'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>all_paths[<span class="dv">0</span>].head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>all_paths[<span class="dv">0</span>].head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <div>
 
@@ -1422,7 +1487,7 @@ id: <em>string</em></p>
 </div>
 </div>
 <div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>[all_paths[<span class="dv">1</span>], all_paths[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>[all_paths[<span class="dv">1</span>], all_paths[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>[['CTUID_1_xx', 'CTUID_2_xx'], ['CTUID_1_yx', 'CTUID_1_xx']]</code></pre>
 </div>
@@ -1441,13 +1506,13 @@ final_cols: <em>List[string]</em></p>
 
 <hr>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_full_paths(full_paths_df, final_cols):</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    full_paths <span class="op">=</span> pd.DataFrame()</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">not</span> full_paths_df.empty):</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>        full_paths <span class="op">=</span> full_paths_df.T.drop_duplicates().sort_values(by<span class="op">=</span><span class="dv">0</span>).T</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>        full_paths.columns <span class="op">=</span> final_cols</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> full_paths</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_full_paths(full_paths_df, final_cols):</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    full_paths <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">not</span> full_paths_df.empty):</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>        full_paths <span class="op">=</span> full_paths_df.T.drop_duplicates().sort_values(by<span class="op">=</span><span class="dv">0</span>).T</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>        full_paths.columns <span class="op">=</span> final_cols</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> full_paths</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <hr>
 </section>
@@ -1464,27 +1529,27 @@ final_cols: <em>List[string]</em></p>
 - A partial path is defined as a path in the network where the starting and ending nodes are of any year (i.e., a path which does <strong>not</strong> span the entire network, not a full path).
 <hr>
 <div class="cell" data-execution_count="114">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> first_year_partial_paths(all_partial_paths, years, final_cols):</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    drop_cols <span class="op">=</span> final_cols[<span class="dv">1</span>:]</span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Selecting paths with the starting node as the first year</span></span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(years[<span class="dv">0</span>] <span class="op">+</span> <span class="st">'_'</span>)</span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> all_partial_paths[mask]</span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Calculating which year contains the ending node </span></span>
-<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    max_partial_year <span class="op">=</span> <span class="bu">max</span>(all_partial_paths.T.stack().values)[:<span class="dv">4</span>]</span>
-<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN columns to the end for each year as they don't exist in data</span></span>
-<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ((max_partial_year <span class="op">&gt;=</span> years[<span class="dv">1</span>]) <span class="op">&amp;</span> (max_partial_year <span class="op">!=</span> years[<span class="op">-</span><span class="dv">1</span>])):</span>
-<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">reversed</span>(<span class="bu">range</span>((num_years <span class="op">-</span> <span class="dv">1</span>) <span class="op">-</span> max_partial_year)):</span>
-<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>            last_col <span class="op">=</span> <span class="bu">len</span>(first_year_partials.columns)</span>
-<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>            first_year_partials.insert(last_col, final_cols[<span class="op">-</span>i], np.NaN)</span>
-<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>        first_year_partials.columns <span class="op">=</span> final_cols </span>
-<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> first_year_partials.T.drop_duplicates().dropna().T</span>
-<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>    first_year_partials.columns <span class="op">=</span> final_cols</span>
-<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> first_year_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> first_year_partial_paths(all_partial_paths, years, final_cols):</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    drop_cols <span class="op">=</span> final_cols[<span class="dv">1</span>:]</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Selecting paths with the starting node as the first year</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(years[<span class="dv">0</span>] <span class="op">+</span> <span class="st">'_'</span>)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> all_partial_paths[mask]</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Calculating which year contains the ending node </span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>    max_partial_year <span class="op">=</span> <span class="bu">max</span>(all_partial_paths.T.stack().values)[:<span class="dv">4</span>]</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN columns to the end for each year as they don't exist in data</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ((max_partial_year <span class="op">&gt;=</span> years[<span class="dv">1</span>]) <span class="op">&amp;</span> (max_partial_year <span class="op">!=</span> years[<span class="op">-</span><span class="dv">1</span>])):</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">reversed</span>(<span class="bu">range</span>((num_years <span class="op">-</span> <span class="dv">1</span>) <span class="op">-</span> max_partial_year)):</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>            last_col <span class="op">=</span> <span class="bu">len</span>(first_year_partials.columns)</span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>            first_year_partials.insert(last_col, final_cols[<span class="op">-</span>i], np.NaN)</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>        first_year_partials.columns <span class="op">=</span> final_cols </span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> first_year_partials.T.drop_duplicates().dropna().T</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>    first_year_partials.columns <span class="op">=</span> final_cols</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> first_year_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <hr>
 </section>
@@ -1502,41 +1567,41 @@ final_cols: <em>List[string]</em></p>
 - A partial path is defined as a path in the network where the starting and ending nodes are of any year (i.e., a path which does <strong>not</strong> span the entire network, not a full path).
 <hr>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> unique_partial_paths(all_partial_paths, years, left_cols, final_cols):</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    unique_partials <span class="op">=</span> pd.DataFrame()</span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, num_years):</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> years[i] <span class="op">+</span> <span class="st">'_'</span></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>        prev_year <span class="op">=</span> years[i<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> <span class="st">'_'</span></span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>        curr_year_mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(curr_year)</span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>        prev_year_mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(prev_year)</span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>        curr_year_partials <span class="op">=</span> all_partial_paths[curr_year_mask]</span>
-<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>        prev_year_partials <span class="op">=</span> all_partial_paths[prev_year_mask]</span>
-<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>        curr_year_mask <span class="op">=</span> <span class="op">~</span>curr_year_partials[left_cols[<span class="dv">0</span>]].isin(prev_year_partials) </span>
-<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>        curr_year_unique <span class="op">=</span> curr_year_partials[curr_year_mask]</span>
-<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>        curr_year_unique <span class="op">=</span> curr_year_partials.dropna(axis<span class="op">=</span><span class="dv">1</span>).T.drop_duplicates().T</span>
-<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN column to the front to account for missing first year</span></span>
-<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(i):</span>
-<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>            curr_year_unique.insert(<span class="dv">0</span>, final_cols[k], np.NaN)</span>
-<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN column to the end to account for missing last year</span></span>
-<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span>(<span class="kw">not</span> curr_year_unique.empty):</span>
-<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>            curr_year_val <span class="op">=</span> <span class="bu">max</span>(curr_year_unique.T.stack().values)[:<span class="dv">4</span>]</span>
-<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>            curr_year_index <span class="op">=</span> years.index(curr_year_val)</span>
-<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (curr_year_index <span class="op">!=</span> years[<span class="op">-</span><span class="dv">1</span>]):</span>
-<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>((num_years <span class="op">-</span> <span class="dv">1</span>) <span class="op">-</span> curr_year_index):</span>
-<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>                    last_col <span class="op">=</span> <span class="bu">len</span>(curr_year_unique.columns)</span>
-<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>                    curr_year_unique.insert(last_col, final_cols[<span class="op">-</span>j], np.NaN)</span>
-<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>                    </span>
-<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>            curr_year_unique.columns <span class="op">=</span> final_cols</span>
-<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>        unique_partials <span class="op">=</span> pd.concat([unique_partials, curr_year_unique])</span>
-<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> unique_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> unique_partial_paths(all_partial_paths, years, left_cols, final_cols):</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    num_years <span class="op">=</span> <span class="bu">len</span>(years)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    unique_partials <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, num_years):</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> years[i] <span class="op">+</span> <span class="st">'_'</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>        prev_year <span class="op">=</span> years[i<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> <span class="st">'_'</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>        curr_year_mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(curr_year)</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>        prev_year_mask <span class="op">=</span> all_partial_paths.iloc[:, <span class="dv">0</span>].<span class="bu">str</span>.startswith(prev_year)</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>        curr_year_partials <span class="op">=</span> all_partial_paths[curr_year_mask]</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>        prev_year_partials <span class="op">=</span> all_partial_paths[prev_year_mask]</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>        curr_year_mask <span class="op">=</span> <span class="op">~</span>curr_year_partials[left_cols[<span class="dv">0</span>]].isin(prev_year_partials) </span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>        curr_year_unique <span class="op">=</span> curr_year_partials[curr_year_mask]</span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>        curr_year_unique <span class="op">=</span> curr_year_partials.dropna(axis<span class="op">=</span><span class="dv">1</span>).T.drop_duplicates().T</span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN column to the front to account for missing first year</span></span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(i):</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>            curr_year_unique.insert(<span class="dv">0</span>, final_cols[k], np.NaN)</span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Appending NaN column to the end to account for missing last year</span></span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span>(<span class="kw">not</span> curr_year_unique.empty):</span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>            curr_year_val <span class="op">=</span> <span class="bu">max</span>(curr_year_unique.T.stack().values)[:<span class="dv">4</span>]</span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>            curr_year_index <span class="op">=</span> years.index(curr_year_val)</span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (curr_year_index <span class="op">!=</span> years[<span class="op">-</span><span class="dv">1</span>]):</span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>((num_years <span class="op">-</span> <span class="dv">1</span>) <span class="op">-</span> curr_year_index):</span>
+<span id="cb43-30"><a href="#cb43-30" aria-hidden="true" tabindex="-1"></a>                    last_col <span class="op">=</span> <span class="bu">len</span>(curr_year_unique.columns)</span>
+<span id="cb43-31"><a href="#cb43-31" aria-hidden="true" tabindex="-1"></a>                    curr_year_unique.insert(last_col, final_cols[<span class="op">-</span>j], np.NaN)</span>
+<span id="cb43-32"><a href="#cb43-32" aria-hidden="true" tabindex="-1"></a>                    </span>
+<span id="cb43-33"><a href="#cb43-33" aria-hidden="true" tabindex="-1"></a>            curr_year_unique.columns <span class="op">=</span> final_cols</span>
+<span id="cb43-34"><a href="#cb43-34" aria-hidden="true" tabindex="-1"></a>        unique_partials <span class="op">=</span> pd.concat([unique_partials, curr_year_unique])</span>
+<span id="cb43-35"><a href="#cb43-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> unique_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <hr>
 </section>
@@ -1555,15 +1620,15 @@ exclude_nodes: <em>DataFrame</em></p>
 - A partial path is defined as a path in the network where the starting and ending nodes are of any year (i.e., a path which does <strong>not</strong> span the entire network, not a full path).
 <hr>
 <div class="cell" data-execution_count="74">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_partial_paths(partial_paths_df, years, left_cols, final_cols, exclude_nodes): </span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    all_partial_paths <span class="op">=</span> partial_paths_df.T.drop_duplicates().T </span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    all_partial_paths <span class="op">=</span> all_partial_paths[<span class="op">~</span>all_partial_paths[left_cols[<span class="dv">0</span>]].isin(exclude_nodes)]</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> first_year_partial_paths(all_partial_paths, years, final_cols)</span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    unique_partials <span class="op">=</span> unique_partial_paths(all_partial_paths, years, left_cols, final_cols)</span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    all_partials <span class="op">=</span> pd.concat([unique_partials, first_year_partials])</span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> all_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_partial_paths(partial_paths_df, years, left_cols, final_cols, exclude_nodes): </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    all_partial_paths <span class="op">=</span> partial_paths_df.T.drop_duplicates().T </span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    all_partial_paths <span class="op">=</span> all_partial_paths[<span class="op">~</span>all_partial_paths[left_cols[<span class="dv">0</span>]].isin(exclude_nodes)]</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    first_year_partials <span class="op">=</span> first_year_partial_paths(all_partial_paths, years, final_cols)</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    unique_partials <span class="op">=</span> unique_partial_paths(all_partial_paths, years, left_cols, final_cols)</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    all_partials <span class="op">=</span> pd.concat([unique_partials, first_year_partials])</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> all_partials</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <hr>
 </section>
@@ -1580,33 +1645,33 @@ final_cols: <em>List[string]</em><br>
 id: <em>string</em>
 <hr>
 <div class="cell" data-execution_count="80">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> attach_attributes(network_table, attributes, years, final_cols, <span class="bu">id</span>):</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    years_df_list <span class="op">=</span> []</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(final_cols)):</span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>        col <span class="op">=</span> <span class="bu">str</span>(final_cols[i])</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Getting attributes for each year</span></span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>        table_col <span class="op">=</span> network_table[col].to_frame().astype(<span class="bu">object</span>)</span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> table_col.merge(attributes, how<span class="op">=</span><span class="st">'left'</span>, left_on<span class="op">=</span>col, right_on<span class="op">=</span><span class="bu">id</span>)</span>
-<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> curr_year.drop([<span class="bu">id</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Suppressing warning for str.replace</span></span>
-<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> warnings.catch_warnings():</span>
-<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>            warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span>
-<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>            curr_year <span class="op">=</span> curr_year.<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.<span class="bu">str</span>.replace(<span class="vs">r'[0-9]+_'</span>, <span class="st">''</span>) </span>
-<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="cf">if</span> x.dtypes<span class="op">==</span><span class="bu">object</span> <span class="cf">else</span> x).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Formatting all columns as 'colname_year'</span></span>
-<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>            curr_year_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>years[i]<span class="sc">}</span><span class="ss">'</span> </span>
-<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>                              <span class="cf">if</span> col <span class="op">!=</span> final_cols[i] <span class="kw">and</span> col <span class="op">!=</span> <span class="ss">f'area_</span><span class="sc">{</span>years[i]<span class="sc">}</span><span class="ss">'</span> </span>
-<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>                              <span class="cf">else</span> col <span class="cf">for</span> col <span class="kw">in</span> curr_year.columns]</span>
-<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>            curr_year.columns <span class="op">=</span> curr_year_cols</span>
-<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>            years_df_list.append(curr_year)</span>
-<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Combining all years dfs into one</span></span>
-<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> (pd.concat(years_df_list, axis<span class="op">=</span><span class="dv">1</span>)).dropna(how<span class="op">=</span><span class="st">'all'</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> network_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> attach_attributes(network_table, attributes, years, final_cols, <span class="bu">id</span>):</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    years_df_list <span class="op">=</span> []</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(final_cols)):</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>        col <span class="op">=</span> <span class="bu">str</span>(final_cols[i])</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Getting attributes for each year</span></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>        table_col <span class="op">=</span> network_table[col].to_frame().astype(<span class="bu">object</span>)</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> table_col.merge(attributes, how<span class="op">=</span><span class="st">'left'</span>, left_on<span class="op">=</span>col, right_on<span class="op">=</span><span class="bu">id</span>)</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>        curr_year <span class="op">=</span> curr_year.drop([<span class="bu">id</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Suppressing warning for str.replace</span></span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> warnings.catch_warnings():</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>            warnings.simplefilter(action<span class="op">=</span><span class="st">'ignore'</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>            curr_year <span class="op">=</span> curr_year.<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.<span class="bu">str</span>.replace(<span class="vs">r'[0-9]+_'</span>, <span class="st">''</span>) </span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="cf">if</span> x.dtypes<span class="op">==</span><span class="bu">object</span> <span class="cf">else</span> x).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>            <span class="co">#Formatting all columns as 'colname_year'</span></span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>            curr_year_cols <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>years[i]<span class="sc">}</span><span class="ss">'</span> </span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a>                              <span class="cf">if</span> col <span class="op">!=</span> final_cols[i] <span class="kw">and</span> col <span class="op">!=</span> <span class="ss">f'area_</span><span class="sc">{</span>years[i]<span class="sc">}</span><span class="ss">'</span> </span>
+<span id="cb45-21"><a href="#cb45-21" aria-hidden="true" tabindex="-1"></a>                              <span class="cf">else</span> col <span class="cf">for</span> col <span class="kw">in</span> curr_year.columns]</span>
+<span id="cb45-22"><a href="#cb45-22" aria-hidden="true" tabindex="-1"></a>            curr_year.columns <span class="op">=</span> curr_year_cols</span>
+<span id="cb45-23"><a href="#cb45-23" aria-hidden="true" tabindex="-1"></a>            years_df_list.append(curr_year)</span>
+<span id="cb45-24"><a href="#cb45-24" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb45-25"><a href="#cb45-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Combining all years dfs into one</span></span>
+<span id="cb45-26"><a href="#cb45-26" aria-hidden="true" tabindex="-1"></a>    network_table <span class="op">=</span> (pd.concat(years_df_list, axis<span class="op">=</span><span class="dv">1</span>)).dropna(how<span class="op">=</span><span class="st">'all'</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb45-27"><a href="#cb45-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> network_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
